@@ -123,6 +123,7 @@ RP_CMD (gprev);
 RP_CMD (gravity);
 RP_CMD (groups);
 RP_CMD (gselect);
+RP_CMD (lock);
 RP_CMD (h_split);
 RP_CMD (help);
 RP_CMD (info);

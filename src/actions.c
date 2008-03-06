@@ -1111,6 +1111,12 @@ string_to_window_number (char *str)
 }
 
 struct list_head *
+null_completions ()
+{
+;
+}
+
+struct list_head *
 trivial_completions (char* str)
 {
   struct list_head *list;
@@ -3023,13 +3029,58 @@ cmd_license (int interactive, struct cmdarg **args)
 
   /* Revert focus. */
   XUngrabKeyboard (dpy, CurrentTime);
-  XUnmapWindow (dpy, s->help_window);
+}
 
-  /* The help window overlaps the bar, so redraw it. */
-  if (current_screen()->bar_is_raised)
-    show_last_message();
+cmdret *
+cmd_lock (int interactive, struct cmdarg **args)
+{
+  rp_keymap *map;
 
-  return cmdret_new (NULL, RET_SUCCESS);
+  if (args[0])
+    map = ARG(0,keymap);
+  else
+    map = find_keymap (ROOT_KEYMAP);
+
+  if (interactive)
+    {
+      rp_screen *s = current_screen();
+      XEvent ev;
+      int y = 0;
+      char *user;
+      char *passwd;
+
+      XMapRaised (dpy, s->help_window);
+      XGrabKeyboard (dpy, s->help_window, False, GrabModeSync, GrabModeAsync, CurrentTime);
+
+      y += FONT_HEIGHT (defaults.font) * 2;
+
+      XDrawString (dpy, s->help_window, s->normal_gc,
+                   10, y + defaults.font->max_bounds.ascent,
+                   "Password: ", strlen ("Password: "));
+
+      do {
+      passwd = get_password (MESSAGE_PROMPT_COMMAND, null_completions);
+      passtok = passwd;
+      } while (check_auth());
+
+      XUngrabKeyboard (dpy, CurrentTime);
+      XUnmapWindow (dpy, s->help_window);
+
+      /* The help window overlaps the bar, so redraw it. */
+      if (current_screen()->bar_is_raised)
+        show_last_message();
+
+      return cmdret_new (RET_SUCCESS, NULL);
+    }
+  else
+    {
+      struct sbuf *help_list;
+      char *tmp;
+
+      return cmdret_new (RET_SUCCESS, "%s", tmp);
+    }
+
+  return cmdret_new (RET_SUCCESS, NULL);
 }
 
 cmdret *

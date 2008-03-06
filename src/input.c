@@ -487,4 +487,10 @@ get_more_input (char *prompt, char *preinput,
   XUnmapWindow (dpy, s->input_window);
 
   return final_input;
-}  
+}
+
+char *
+get_password (char *prompt, completion_fn fn)
+{
+  return get_even_more_input (prompt, "", fn);
+}
